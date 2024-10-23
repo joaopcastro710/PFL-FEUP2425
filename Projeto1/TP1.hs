@@ -10,28 +10,43 @@ type City = String
 type Path = [City]
 type Distance = Int
 
-type RoadMap = [(City,City,Distance)]
+type RoadMap = [(City,City,Distance)]    --type for the graphs used as input of all the functions to be implemented
 
+
+-- [City], returns all the cities in the graph 
 cities :: RoadMap -> [City]
-cities = undefined -- modifiy this line to implement the solution, for each exercise not solved, leave the function definition like this
-
+cities [] = []
+cities ((city1, city2, _): xs) = cities (city1, _, _) ++ cities (_, city2, )
+ 
+-- returns a boolean indicating whether two cities are linked directly
 areAdjacent :: RoadMap -> City -> City -> Bool
 areAdjacent = undefined
 
+
+-- returns a Just value with the distance between two cities connected directly, given two city names, and Nothing otherwise
 distance :: RoadMap -> City -> City -> Maybe Distance
 distance = undefined
 
+
+-- returns the cities adjacent to a particular city (that is cities with a direct edge between them) and the respective distance to them
 adjacent :: RoadMap -> City -> [(City,Distance)]
 adjacent = undefined
 
+-- returns the sum of all individual distances in a path between two cities in a Just value, if all the consecutive pairs of cities are directly connected by roads. Otherwise it returns Nothing
 pathDistance :: RoadMap -> Path -> Maybe Distance
 pathDistance = undefined
 
+
+-- returns the names of the cities with the highest number of roads connecting to them (vertices with the highest degree)
 rome :: RoadMap -> [City]
 rome = undefined
 
+
+-- returns a boolean indicating whether all the cities in the graph are connected in the roadmap (if every city is reachable from every other city)
 isStronglyConnected :: RoadMap -> Bool
 isStronglyConnected = undefined
+
+
 
 shortestPath :: RoadMap -> City -> City -> [Path]
 shortestPath = undefined
@@ -53,3 +68,10 @@ gTest2 = [("0","1",10),("0","2",15),("0","3",20),("1","2",35),("1","3",25),("2",
 
 gTest3 :: RoadMap -- unconnected graph
 gTest3 = [("0","1",4),("2","3",2)]
+
+
+-- Test the cities function
+main = do
+    print $ cities gTest1  -- Expected: List of all cities in gTest1 without duplicates
+    print $ cities gTest2  -- Expected: List of cities in gTest2
+    print $ cities gTest3  -- Expected: List of cities in gTest3
