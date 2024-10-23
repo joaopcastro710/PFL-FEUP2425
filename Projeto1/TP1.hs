@@ -14,13 +14,21 @@ type RoadMap = [(City,City,Distance)]    --type for the graphs used as input of 
 
 
 -- [City], returns all the cities in the graph 
+rmd :: Eq a => [a] -> [a]
+rmd [] = []
+rmd (x: xs) = x : rmd (filter(/= x) xs)
+
 cities :: RoadMap -> [City]
 cities [] = []
-cities ((city1, city2, _): xs) = cities (city1, _, _) ++ cities (_, city2, )
+cities ((c1, c2, _): xs) = rmd(c1 : c2 : cities xs)
  
 -- returns a boolean indicating whether two cities are linked directly
 areAdjacent :: RoadMap -> City -> City -> Bool
-areAdjacent = undefined
+areAdjacent [] c1 c2 = False
+areAdjacent ((city1,city2,_):xs) c1 c2
+    | ((city1==c1 && city2==c2)||(city1==c2 && city2==c1)) = True
+    | otherwise = areAdjacent xs c1 c2
+
 
 
 -- returns a Just value with the distance between two cities connected directly, given two city names, and Nothing otherwise
