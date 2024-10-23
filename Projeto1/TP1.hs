@@ -42,7 +42,8 @@ distance ((c1,c2,d) : xs) city1 city2
 
 -- returns the cities adjacent to a particular city (that is cities with a direct edge between them) and the respective distance to them
 adjacent :: RoadMap -> City -> [(City,Distance)]
-adjacent = undefined
+adjacent roadMap city = [(if city == c1 then c2 else c1, d) | (c1, c2, d) <- roadMap, city == c1 || city == c2]
+
 
 -- returns the sum of all individual distances in a path between two cities in a Just value, if all the consecutive pairs of cities are directly connected by roads. Otherwise it returns Nothing
 pathDistance :: RoadMap -> Path -> Maybe Distance
@@ -82,8 +83,4 @@ gTest3 :: RoadMap -- unconnected graph
 gTest3 = [("0","1",4),("2","3",2)]
 
 
--- Test the cities function
-main = do
-    print $ cities gTest1  -- Expected: List of all cities in gTest1 without duplicates
-    print $ cities gTest2  -- Expected: List of cities in gTest2
-    print $ cities gTest3  -- Expected: List of cities in gTest3
+
