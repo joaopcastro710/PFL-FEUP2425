@@ -13,11 +13,12 @@ type Distance = Int
 type RoadMap = [(City,City,Distance)]    --type for the graphs used as input of all the functions to be implemented
 
 
--- [City], returns all the cities in the graph 
+-- Auxiliary function to remove duplicate cities
 rmd :: Eq a => [a] -> [a]
 rmd [] = []
 rmd (x: xs) = x : rmd (filter(/= x) xs)
 
+-- [City], returns all the cities in the graph 
 cities :: RoadMap -> [City]
 cities [] = []
 cities ((c1, c2, _): xs) = rmd(c1 : c2 : cities xs)
@@ -33,7 +34,10 @@ areAdjacent ((city1,city2,_):xs) c1 c2
 
 -- returns a Just value with the distance between two cities connected directly, given two city names, and Nothing otherwise
 distance :: RoadMap -> City -> City -> Maybe Distance
-distance = undefined
+distance [] c1 c2 = Nothing
+distance ((c1,c2,d) : xs) city1 city2
+    | (city1 == c1 && city2 == c2) || (city1 == c2 && city2 == c1) = Just d
+    | otherwise = distance xs city1 city2
 
 
 -- returns the cities adjacent to a particular city (that is cities with a direct edge between them) and the respective distance to them
