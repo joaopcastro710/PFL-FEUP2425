@@ -47,19 +47,33 @@ adjacent roadMap city = [(if city == c1 then c2 else c1, d) | (c1, c2, d) <- roa
 
 -- returns the sum of all individual distances in a path between two cities in a Just value, if all the consecutive pairs of cities are directly connected by roads. Otherwise it returns Nothing
 pathDistance :: RoadMap -> Path -> Maybe Distance
-pathDistance = undefined
+pathDistance [] _ = Nothing
+pathDistance _ [] = Nothing
+pathDistance _ [x] = Just 0
+pathDistance roadMap (x:xs) = case pathDistance roadMap xs of
+    Nothing -> Nothing
+    Just d -> case distance roadMap x (head xs) of
+        Nothing -> Nothing
+        Just d' -> Just (d + d') 
 
 
 -- returns the names of the cities with the highest number of roads connecting to them (vertices with the highest degree)
 rome :: RoadMap -> [City]
-rome = undefined
+rome [] = []
+rome roadMap = 
+    let tuplelist = romeadj roadMap (cities roadMap)
+        maxadj = maximum [adj | (_ , adj) <- tuplelist]
+    in [city | (city, adj) <- tuplelist, maxadj==adj]
+
+romeadj :: RoadMap -> [City] -> [(City, Int)]
+romeadj _ [] = []
+romeadj [] _ = []
+romeadj rm cities = [(city, length(adjacent rm city)) | city <- cities]
 
 
 -- returns a boolean indicating whether all the cities in the graph are connected in the roadmap (if every city is reachable from every other city)
 isStronglyConnected :: RoadMap -> Bool
 isStronglyConnected = undefined
-
-
 
 shortestPath :: RoadMap -> City -> City -> [Path]
 shortestPath = undefined
@@ -67,10 +81,11 @@ shortestPath = undefined
 travelSales :: RoadMap -> Path
 travelSales = undefined
 
+--------------------
 tspBruteForce :: RoadMap -> Path
 tspBruteForce = undefined -- only for groups of 3 people; groups of 2 people: do not edit this function
 
-
+---------------
 
 -- Some graphs to test your work
 gTest1 :: RoadMap
