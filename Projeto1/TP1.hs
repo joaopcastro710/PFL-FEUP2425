@@ -73,7 +73,20 @@ romeadj rm cities = [(city, length(adjacent rm city)) | city <- cities]
 
 -- returns a boolean indicating whether all the cities in the graph are connected in the roadmap (if every city is reachable from every other city)
 isStronglyConnected :: RoadMap -> Bool
-isStronglyConnected = undefined
+isStronglyConnected [] = True  -- empty graph is strongly connected
+isStronglyConnected roadMap =
+    let allCities = cities roadMap
+        startCity = head allCities
+        reachableFromStart = dfs roadMap [] [startCity]
+    in length reachableFromStart == length allCities
+
+-- dfs function :: TODO -----> mais documentation
+dfs :: RoadMap -> [City] -> [City] -> [City]
+dfs _ visited [] = visited
+dfs roadMap visited (x:xs)
+    | elem x visited = dfs roadMap visited xs
+    | otherwise = dfs roadMap (x:visited) ([xss | (xss, _) <- adjacent r c] ++ xs)
+
 
 shortestPath :: RoadMap -> City -> City -> [Path]
 shortestPath = undefined
