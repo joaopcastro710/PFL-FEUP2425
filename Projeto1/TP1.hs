@@ -12,6 +12,10 @@ type Distance = Int
 
 type RoadMap = [(City,City,Distance)]    --type for the graphs used as input of all the functions to be implemented
 
+--extra graph representations:
+type AdjList = [(City, [(City, Distance)])]
+--type AdjMatrix = Data.Array.Array (Int,Int) (Maybe Distance)
+--data AdjPointers = Place City [(AdjPointers, Distance)]
 
 -- Auxiliary function to remove duplicate cities
 rmd :: Eq a => [a] -> [a]
@@ -87,10 +91,31 @@ dfs roadMap visited (x:xs)
     | elem x visited = dfs roadMap visited xs
     | otherwise = dfs roadMap (x:visited) ([xss | (xss, _) <- adjacent roadMap x] ++ xs)
 
+-- Dijkstra algorithm to find the shortest path
+dijkstra :: RoadMap -> City -> City -> Path
+dijkstra roadMap start end = explore [] [(0, [start])]
+  where
+    -- Explore paths from the priority queue
+    explore :: [(City, Distance)] -> [(Distance, Path)] -> Path
+    explore _ [] = []  -- No path exists
+    explore visited ((currentDist, (currentCity:currentPathTail)) : queue)
+        | currentCity == end = reverse (currentCity : currentPathTail)  -- Found the shortest path
+        | otherwise =
+            let newVisited = (currentCity, currentDist) : visited
+                -- Get new paths by exploring neighbors
+                newPaths = [ (currentDist + d, neighbor : currentCity : currentPathTail)
+                           | (neighbor, d) <- adjacent roadMap currentCity,
+                             not (neighbor `elem` map fst visited)
+                           ]
+                -- Insert new paths into the queue
+                newQueue = queue ++ newPaths
+            in explore newVisited newQueue
 
-
-shortestPath :: RoadMap -> City -> City -> [Path]
-shortestPath = undefined
+-- Wrapper for shortestPath to handle trivial cases and call dijkstra
+shortestPath :: RoadMap -> City -> City -> Path
+shortestPath roadMap start end
+    | start == end = [start]
+    | otherwise = dijkstra roadMap start end
 
 travelSales :: RoadMap -> Path
 travelSales = undefined
