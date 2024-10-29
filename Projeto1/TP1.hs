@@ -85,7 +85,8 @@ dfs :: RoadMap -> [City] -> [City] -> [City]
 dfs _ visited [] = visited
 dfs roadMap visited (x:xs)
     | elem x visited = dfs roadMap visited xs
-    | otherwise = dfs roadMap (x:visited) ([xss | (xss, _) <- adjacent r c] ++ xs)
+    | otherwise = dfs roadMap (x:visited) ([xss | (xss, _) <- adjacent roadMap x] ++ xs)
+
 
 
 shortestPath :: RoadMap -> City -> City -> [Path]
