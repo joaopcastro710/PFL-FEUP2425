@@ -117,6 +117,7 @@ shortestPath roadMap start end
     | start == end = [start]
     | otherwise = dijkstra roadMap start end
 
+-- to do
 travelSales :: RoadMap -> Path
 travelSales = undefined
 
