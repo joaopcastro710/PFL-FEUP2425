@@ -117,9 +117,75 @@ shortestPath roadMap start end
     | start == end = [start]
     | otherwise = dijkstra roadMap start end
 
--- to do
+
+-- 9
+-- Convert City names to indices and vice versa
+cityIndex :: [City] -> City -> Int
+cityIndex cityList city = case Data.List.elemIndex city cityList of
+    Just i -> i
+    Nothing -> error "City not found in list"
+
+indexCity :: [City] -> Int -> City
+indexCity cityList index = cityList !! index
+
+-- Initialize the distance matrix from a RoadMap and city list
+initDistanceMatrix :: RoadMap -> [City] -> Data.Array.Array (Int, Int) (Maybe Distance)
+initDistanceMatrix roadMap cityList =
+    let n = length cityList
+    in Data.Array.array ((0, 0), (n - 1, n - 1))
+        [((i, j), findDistance (indexCity cityList i) (indexCity cityList j) roadMap)
+        | i <- [0 .. n - 1], j <- [0 .. n - 1]]
+  where
+    findDistance :: City -> City -> RoadMap -> Maybe Distance
+    findDistance c1 c2 [] = Nothing
+    findDistance c1 c2 ((a, b, d):xs)
+      | (c1 == a && c2 == b) || (c1 == b && c2 == a) = Just d
+      | otherwise = findDistance c1 c2 xs
+
+-- Main TSP function using the Held-Karp algorithm
 travelSales :: RoadMap -> Path
-travelSales = undefined
+travelSales roadMap = case reconstructPath (0, allVisited) of
+    [] -> []  -- If no valid path, return empty list
+    path -> map (indexCity citiesList) (path ++ [0])  -- Append start city to complete the cycle
+  where
+    citiesList = cities roadMap
+    n = length citiesList
+    allVisited = (1 `Data.Bits.shiftL` n) - 1
+    distMatrix = initDistanceMatrix roadMap citiesList
+
+    -- Memoization table for dynamic programming
+    memoTable :: Data.Array.Array (Int, Int) (Maybe (Distance, Int))
+    memoTable = Data.Array.array ((0, 0), (n - 1, allVisited))
+        [((i, visited), heldKarp i visited) | i <- [0 .. n - 1], visited <- [0 .. allVisited]]
+
+    -- Recursive Held-Karp function with memoization, includes return to start
+    heldKarp :: Int -> Int -> Maybe (Distance, Int)
+    heldKarp current visited
+      | visited == 0 = case distMatrix Data.Array.! (current, 0) of
+                         Just d -> Just (d, 0)  -- Distance back to start
+                         Nothing -> Nothing
+      | otherwise = minimumByMaybe [case distMatrix Data.Array.! (current, next) of
+                                     Just d -> addDistance next d <$> memoTable Data.Array.! (next, visited `Data.Bits.clearBit` next)
+                                     Nothing -> Nothing
+                                   | next <- [0 .. n - 1], visited `Data.Bits.testBit` next]
+      where
+        addDistance :: Int -> Distance -> (Distance, Int) -> (Distance, Int)
+        addDistance next d (d', _) = (d + d', next)
+
+    -- Function to get the minimum path with Just values only
+    minimumByMaybe :: [Maybe (Distance, Int)] -> Maybe (Distance, Int)
+    minimumByMaybe xs = case Data.List.filter (/= Nothing) xs of
+                          [] -> Nothing
+                          js -> Just $ Data.List.minimumBy (\x y -> compare (fst x) (fst y)) (map (\(Just x) -> x) js)
+
+    -- Reconstruct path from memoTable, add start city at the end for return
+    reconstructPath :: (Int, Int) -> [Int]
+    reconstructPath (start, visited)
+      | visited == 0 = [start]
+      | otherwise =
+          case memoTable Data.Array.! (start, visited) of
+              Just (_, next) -> start : reconstructPath (next, visited `Data.Bits.clearBit` next)
+              Nothing -> []  -- Return empty if no valid path found
 
 --------------------
 tspBruteForce :: RoadMap -> Path
@@ -136,6 +202,3 @@ gTest2 = [("0","1",10),("0","2",15),("0","3",20),("1","2",35),("1","3",25),("2",
 
 gTest3 :: RoadMap -- unconnected graph
 gTest3 = [("0","1",4),("2","3",2)]
-
-
-
