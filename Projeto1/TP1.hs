@@ -6,50 +6,51 @@ import qualified Data.Bits
 
 -- Uncomment the some/all of the first three lines to import the modules, do not change the code of these lines.
 
-type City = String
-type Path = [City]
-type Distance = Int
+type City = String    -- Type alias for a city's name
+type Path = [City]    -- Type alias for a path represented as a list of cities
+type Distance = Int   -- Type alias for the distance between cities
 
-type RoadMap = [(City,City,Distance)]    --type for the graphs used as input of all the functions to be implemented
+type RoadMap = [(City,City,Distance)]    -- Type for the graph with tuples (city1, city2, distance)
 
---extra graph representations:
-type AdjList = [(City, [(City, Distance)])]
---type AdjMatrix = Data.Array.Array (Int,Int) (Maybe Distance)
---data AdjPointers = Place City [(AdjPointers, Distance)]
+-- Extra graph representation types for adjacency
+type AdjList = [(City, [(City, Distance)])] -- Adjacency list representation
 
 -- Auxiliary function to remove duplicate cities
+-- rmd :: Eq a => [a] -> [a]
+-- Given a list, returns a list with duplicates removed
 rmd :: Eq a => [a] -> [a]
 rmd [] = []
 rmd (x: xs) = x : rmd (filter(/= x) xs)
 
--- [City], returns all the cities in the graph 
+-- cities :: RoadMap -> [City]
+-- Returns a list of unique cities in the graph
 cities :: RoadMap -> [City]
 cities [] = []
 cities ((c1, c2, _): xs) = rmd(c1 : c2 : cities xs)
- 
--- returns a boolean indicating whether two cities are linked directly
+
+-- areAdjacent :: RoadMap -> City -> City -> Bool
+-- Returns True if two cities are directly connected, False otherwise
 areAdjacent :: RoadMap -> City -> City -> Bool
 areAdjacent [] c1 c2 = False
 areAdjacent ((city1,city2,_):xs) c1 c2
     | ((city1==c1 && city2==c2)||(city1==c2 && city2==c1)) = True
     | otherwise = areAdjacent xs c1 c2
 
-
-
--- returns a Just value with the distance between two cities connected directly, given two city names, and Nothing otherwise
+-- distance :: RoadMap -> City -> City -> Maybe Distance
+-- Returns the distance between two directly connected cities, or Nothing if they are not connected
 distance :: RoadMap -> City -> City -> Maybe Distance
 distance [] c1 c2 = Nothing
 distance ((c1,c2,d) : xs) city1 city2
     | (city1 == c1 && city2 == c2) || (city1 == c2 && city2 == c1) = Just d
     | otherwise = distance xs city1 city2
 
-
--- returns the cities adjacent to a particular city (that is cities with a direct edge between them) and the respective distance to them
+-- adjacent :: RoadMap -> City -> [(City,Distance)]
+-- Returns a list of cities directly connected to a given city along with their distances
 adjacent :: RoadMap -> City -> [(City,Distance)]
 adjacent roadMap city = [(if city == c1 then c2 else c1, d) | (c1, c2, d) <- roadMap, city == c1 || city == c2]
 
-
--- returns the sum of all individual distances in a path between two cities in a Just value, if all the consecutive pairs of cities are directly connected by roads. Otherwise it returns Nothing
+-- pathDistance :: RoadMap -> Path -> Maybe Distance
+-- Returns the total distance of a path if all consecutive cities are connected; otherwise, returns Nothing
 pathDistance :: RoadMap -> Path -> Maybe Distance
 pathDistance [] _ = Nothing
 pathDistance _ [] = Nothing
@@ -58,10 +59,10 @@ pathDistance roadMap (x:xs) = case pathDistance roadMap xs of
     Nothing -> Nothing
     Just d -> case distance roadMap x (head xs) of
         Nothing -> Nothing
-        Just d' -> Just (d + d') 
+        Just d' -> Just (d + d')
 
-
--- returns the names of the cities with the highest number of roads connecting to them (vertices with the highest degree)
+-- rome :: RoadMap -> [City]
+-- Returns the cities with the highest number of connections (highest degree)
 rome :: RoadMap -> [City]
 rome [] = []
 rome roadMap = 
@@ -74,44 +75,45 @@ romeadj _ [] = []
 romeadj [] _ = []
 romeadj rm cities = [(city, length(adjacent rm city)) | city <- cities]
 
-
--- returns a boolean indicating whether all the cities in the graph are connected in the roadmap (if every city is reachable from every other city)
+-- isStronglyConnected :: RoadMap -> Bool
+-- Returns True if every city is reachable from every other city in the graph, False otherwise
 isStronglyConnected :: RoadMap -> Bool
-isStronglyConnected [] = True  -- empty graph is strongly connected
+isStronglyConnected [] = True  -- Empty graph is strongly connected
 isStronglyConnected roadMap =
     let allCities = cities roadMap
         startCity = head allCities
         reachableFromStart = dfs roadMap [] [startCity]
     in length reachableFromStart == length allCities
 
--- dfs function :: TODO -----> mais documentation
+-- dfs :: RoadMap -> [City] -> [City] -> [City]
+-- Depth-First Search to find all reachable cities from a starting point
 dfs :: RoadMap -> [City] -> [City] -> [City]
 dfs _ visited [] = visited
 dfs roadMap visited (x:xs)
     | elem x visited = dfs roadMap visited xs
     | otherwise = dfs roadMap (x:visited) ([xss | (xss, _) <- adjacent roadMap x] ++ xs)
 
--- Dijkstra algorithm to find the shortest path
+-- dijkstra :: RoadMap -> City -> City -> Path
+-- Finds the shortest path between two cities using Dijkstra's algorithm
 dijkstra :: RoadMap -> City -> City -> Path
 dijkstra roadMap start end = explore [] [(0, [start])]
   where
-    -- Explore paths from the priority queue
+    -- Helper function to explore paths from priority queue
     explore :: [(City, Distance)] -> [(Distance, Path)] -> Path
     explore _ [] = []  -- No path exists
     explore visited ((currentDist, (currentCity:currentPathTail)) : queue)
         | currentCity == end = reverse (currentCity : currentPathTail)  -- Found the shortest path
         | otherwise =
             let newVisited = (currentCity, currentDist) : visited
-                -- Get new paths by exploring neighbors
                 newPaths = [ (currentDist + d, neighbor : currentCity : currentPathTail)
                            | (neighbor, d) <- adjacent roadMap currentCity,
                              not (neighbor `elem` map fst visited)
                            ]
-                -- Insert new paths into the queue
                 newQueue = queue ++ newPaths
             in explore newVisited newQueue
 
--- Wrapper for shortestPath to handle trivial cases and call dijkstra
+-- shortestPath :: RoadMap -> City -> City -> Path
+-- Wrapper for Dijkstra to handle trivial cases and call dijkstra for others
 shortestPath :: RoadMap -> City -> City -> Path
 shortestPath roadMap start end
     | start == end = [start]

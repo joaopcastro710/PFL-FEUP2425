@@ -1,67 +1,34 @@
-# Explanation of shortestPath Function Implementation
+# README
 
-## Overview
-The `shortestPath` function is designed to find the shortest path between two cities in a roadmap. It acts as a wrapper for the `dijkstra` function, which implements Dijkstra's algorithm to find the shortest path in a weighted graph.
+## 1. Group Information and Member Contributions
 
-## Implementation Details
+- **Group Members:**
+  - João Pedro Monteiro de Castro - up202206575
+  - Xavier Costa Dias de Sousa Guimarães, up202206062
 
-### Wrapper Function: `shortestPath`
+- **Contribution by Percentage:**
+  - João Castro: **50%** - [Task descriptions for the member (e.g., implementation of specific functions, testing, documentation).]
+  - Xavier Guimarães: **50%** - 
 
-- **Input:** `RoadMap`, `City` (start), `City` (end)
-- **Output:** `Path` (list of cities representing the shortest path)
-- **Logic:**
-  - If the start city is the same as the end city, it returns a list containing just the start city.
-  - Otherwise, it calls the `dijkstra` function to compute the shortest path.
+## 2. Shortest Path Function (`shortestPath`)
 
-### Core Algorithm: `dijkstra`
+- **Implementation Overview**:
+  - The `shortestPath` function calculates the shortest path between two cities on a roadmap.
+  - The function is based on Dijkstra’s algorithm, which is designed to handle graphs with non-negative weights efficiently.
+  - The function handles trivial cases where the start and end cities are the same by returning a single-element path.
 
-- **Input:** `RoadMap`, `City` (start), `City` (end)
-- **Output:** `Path` (list of cities representing the shortest path)
-- **Logic:**
-  - Uses a priority queue to explore paths, starting from the start city.
-  - Keeps track of visited cities and their distances from the start city.
-  - For each city, it explores its neighbors and updates the priority queue with new paths.
-  - The algorithm terminates when the end city is reached, returning the shortest path.
+- **Justification for Data Structures**:
+  - We use adjacency lists through the [`adjacent`] function, which retrieves neighboring cities and distances in an efficient manner, making it suitable for Dijkstra’s algorithm.
+  - The roadmap representation (`RoadMap`) as a list of tuples is preserved throughout, as it is straightforward and compatible with list operations required by Dijkstra's approach.
+  - The use of a priority queue (implemented as a list of tuples) in the `explore` function allows for efficient exploration of the least-costly paths.
 
-## Auxiliary Data Structures
+- **Algorithm Description**:
+  - **Dijkstra's Algorithm** is used to progressively explore the least-costly paths to reach the destination city. This algorithm performs well with sparse graphs and ensures optimal pathfinding by exploring neighbors of each city in priority order.
+  - The algorithm starts by initializing a priority queue with the starting city and a distance of zero.
+  - It then iteratively explores the city with the smallest accumulated distance, updating the distances to its neighbors if a shorter path is found.
+  - The algorithm maintains a list of visited cities to avoid reprocessing and ensures that each city is processed only once.
+  - The `explore` function is a helper function that manages the priority queue and explores new paths by adding neighboring cities to the queue.
+  - The `shortestPath` function wraps the Dijkstra algorithm, handling trivial cases where the start and end cities are the same by returning a single-element path.
 
-### Priority Queue (`queue`):
+## 3. Traveling Salesman Function (`travelSales`)
 
-- **Purpose:** To manage the exploration of paths in order of their current total distance.
-- **Structure:** A list of tuples, where each tuple contains the current distance and the path taken so far.
-- **Justification:** Dijkstra's algorithm requires a way to always expand the shortest known path first. A priority queue efficiently supports this requirement.
-
-### Visited List (`visited`):
-
-- **Purpose:** To keep track of cities that have already been explored and their shortest known distances.
-- **Structure:** A list of tuples, where each tuple contains a city and its distance from the start city.
-- **Justification:** This prevents the algorithm from re-exploring cities, ensuring efficiency and correctness.
-
-## Algorithm Description
-
-### Initialization:
-
-- Start with an empty list of visited cities.
-- Initialize the priority queue with the start city and a distance of 0.
-
-### Exploration Loop:
-
-- Dequeue the path with the smallest total distance from the priority queue.
-- If the current city is the end city, return the path as the shortest path.
-- Otherwise, mark the current city as visited.
-- For each neighbor of the current city, if it hasn't been visited, calculate the new path distance and enqueue the new path.
-
-### Termination:
-
-- The loop continues until the priority queue is empty or the end city is reached.
-- If the end city is reached, the path is returned as the shortest path.
-- If the priority queue is empty and the end city hasn't been reached, it indicates that no path exists between the start and end cities.
-
-## Justification for Data Structures
-
-- **Priority Queue:** Essential for Dijkstra's algorithm to ensure the shortest path is always expanded first.
-- **Visited List:** Prevents re-exploration of cities, ensuring efficiency and correctness.
-
-## Algorithm Used
-
-- **Dijkstra's Algorithm:** A well-known algorithm for finding the shortest paths in a weighted graph with non-negative weights. It efficiently finds the shortest path by expanding the least costly paths first, using a priority queue to manage the exploration order.
