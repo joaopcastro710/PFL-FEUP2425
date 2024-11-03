@@ -120,74 +120,78 @@ shortestPath roadMap start end
     | otherwise = dijkstra roadMap start end
 
 
--- 9
--- Convert City names to indices and vice versa
-cityIndex :: [City] -> City -> Int
-cityIndex cityList city = case Data.List.elemIndex city cityList of
-    Just i -> i
-    Nothing -> error "City not found in list"
-
-indexCity :: [City] -> Int -> City
-indexCity cityList index = cityList !! index
-
--- Initialize the distance matrix from a RoadMap and city list
-initDistanceMatrix :: RoadMap -> [City] -> Data.Array.Array (Int, Int) (Maybe Distance)
-initDistanceMatrix roadMap cityList =
-    let n = length cityList
-    in Data.Array.array ((0, 0), (n - 1, n - 1))
-        [((i, j), findDistance (indexCity cityList i) (indexCity cityList j) roadMap)
-        | i <- [0 .. n - 1], j <- [0 .. n - 1]]
-  where
-    findDistance :: City -> City -> RoadMap -> Maybe Distance
-    findDistance c1 c2 [] = Nothing
-    findDistance c1 c2 ((a, b, d):xs)
-      | (c1 == a && c2 == b) || (c1 == b && c2 == a) = Just d
-      | otherwise = findDistance c1 c2 xs
-
--- Main TSP function using the Held-Karp algorithm
+-- travelSales :: RoadMap -> Path
+-- Solves the Traveling Salesman Problem (TSP) by finding the shortest route
+-- that visits each city exactly once and returns to the starting city.
+-- If the roadmap is empty, has only one city, or is not connected,
+-- it returns an empty path. Otherwise, it uses `actualTsp` to find the solution.
 travelSales :: RoadMap -> Path
-travelSales roadMap = case reconstructPath (0, allVisited) of
-    [] -> []  -- If no valid path, return empty list
-    path -> map (indexCity citiesList) (path ++ [0])  -- Append start city to complete the cycle
-  where
-    citiesList = cities roadMap
-    n = length citiesList
-    allVisited = (1 `Data.Bits.shiftL` n) - 1
-    distMatrix = initDistanceMatrix roadMap citiesList
+travelSales roadMap
+    | null cities || length cities == 1 = []
+    | not (isStronglyConnected roadMap) = []
+    | otherwise = case actualTsp roadMap cities adjList of
+                    Nothing -> []
+                    Just path -> path ++ [head path]  -- Return to start city
+    where
+        cities = Data.List.nub (foldr (\(city1, city2, _) acc -> city1 : city2 : acc) [] roadMap)
+        adjList = makeAdjList roadMap cities
 
-    -- Memoization table for dynamic programming
-    memoTable :: Data.Array.Array (Int, Int) (Maybe (Distance, Int))
-    memoTable = Data.Array.array ((0, 0), (n - 1, allVisited))
-        [((i, visited), heldKarp i visited) | i <- [0 .. n - 1], visited <- [0 .. allVisited]]
+-- makeAdjList :: RoadMap -> [City] -> AdjList
+-- Converts the RoadMap to an adjacency list representation for efficient lookup.
+-- Takes a list of all cities and returns an adjacency list where each city maps
+-- to a list of adjacent cities and distances.
+makeAdjList :: RoadMap -> [City] -> AdjList
+makeAdjList roadMap cities = [(city, adjacent roadMap city) | city <- cities]
 
-    -- Recursive Held-Karp function with memoization, includes return to start
-    heldKarp :: Int -> Int -> Maybe (Distance, Int)
-    heldKarp current visited
-      | visited == 0 = case distMatrix Data.Array.! (current, 0) of
-                         Just d -> Just (d, 0)  -- Distance back to start
-                         Nothing -> Nothing
-      | otherwise = minimumByMaybe [case distMatrix Data.Array.! (current, next) of
-                                     Just d -> addDistance next d <$> memoTable Data.Array.! (next, visited `Data.Bits.clearBit` next)
-                                     Nothing -> Nothing
-                                   | next <- [0 .. n - 1], visited `Data.Bits.testBit` next]
-      where
-        addDistance :: Int -> Distance -> (Distance, Int) -> (Distance, Int)
-        addDistance next d (d', _) = (d + d', next)
+-- actualTsp :: RoadMap -> [City] -> AdjList -> Maybe Path
+-- Implements the Held-Karp algorithm to solve the TSP.
+-- Uses dynamic programming with bitwise operations to track visited cities.
+-- Returns a `Maybe Path` indicating the optimal path, or Nothing if no path exists.
+actualTsp :: RoadMap -> [City] -> AdjList -> Maybe Path
+actualTsp roadMap cities adjList = 
+    let bitMaskVisited = (2 ^ length cities) - 1  -- Sets first n bits to 1 (all cities visited)
+        
+        -- Initialize memoization array for dynamic programming
+        memarray = [((i, mask), calculateTsp (cities !! i) mask) | i <- [0 .. length cities - 1], mask <- [0 .. bitMaskVisited]]
+        mem = Data.Array.array ((0, 0), (length cities - 1, bitMaskVisited)) memarray
+        
+        -- calculateTsp :: City -> Int -> Maybe (Distance, [Int])
+        -- Computes TSP solution for a city and a given visited mask
+        calculateTsp :: City -> Int -> Maybe (Distance, [Int])
+        calculateTsp city mask =
+            if mask == bitMaskVisited  -- All cities visited
+            then case distance roadMap city (head cities) of
+                    Nothing -> Nothing
+                    Just d -> Just (d, [0])  -- Distance back to start city
+            else findNextCity city mask
 
-    -- Function to get the minimum path with Just values only
-    minimumByMaybe :: [Maybe (Distance, Int)] -> Maybe (Distance, Int)
-    minimumByMaybe xs = case Data.List.filter (/= Nothing) xs of
-                          [] -> Nothing
-                          js -> Just $ Data.List.minimumBy (\x y -> compare (fst x) (fst y)) (map (\(Just x) -> x) js)
+        -- findNextCity :: City -> Int -> Maybe (Distance, [Int])
+        -- Finds the next city to visit to minimize the total travel distance
+        -- given the current city and visited mask.
+        findNextCity :: City -> Int -> Maybe (Distance, [Int])
+        findNextCity currentCity visitedMask = foldr tryNextCity Nothing [0 .. length cities - 1]
+            where
+                tryNextCity nextCityIndex acc
+                    | Data.Bits.testBit visitedMask nextCityIndex = acc  -- Skip if already visited
+                    | otherwise = 
+                        let nextCity = cities !! nextCityIndex
+                            dist = distance roadMap currentCity nextCity
+                            memo = mem Data.Array.! (nextCityIndex, visitedMask Data.Bits..|. (1 `Data.Bits.shiftL` nextCityIndex))
+                        in case (dist, memo) of
+                            (Just d, Just (remainingDist, remainingPath)) ->
+                                let newDist = d + remainingDist
+                                in case acc of
+                                    Nothing -> Just (newDist, nextCityIndex : remainingPath)
+                                    Just (accDist, accPath) ->
+                                        if newDist < accDist
+                                            then Just (newDist, nextCityIndex : remainingPath)
+                                            else Just (accDist, accPath)
+                            _ -> acc  -- Continue with accumulator
 
-    -- Reconstruct path from memoTable, add start city at the end for return
-    reconstructPath :: (Int, Int) -> [Int]
-    reconstructPath (start, visited)
-      | visited == 0 = [start]
-      | otherwise =
-          case memoTable Data.Array.! (start, visited) of
-              Just (_, next) -> start : reconstructPath (next, visited `Data.Bits.clearBit` next)
-              Nothing -> []  -- Return empty if no valid path found
+        initialResult = mem Data.Array.! (0, 1)  -- Start from the first city with only it visited
+        in do
+            (_, path) <- initialResult
+            return (map (cities !!) path)  -- Map path indices to city names
 
 --------------------
 tspBruteForce :: RoadMap -> Path
