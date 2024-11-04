@@ -7,8 +7,8 @@
   - Xavier Costa Dias de Sousa Guimarães, up202206062
 
 - **Contribution by Percentage:**
-  - João Castro: **50%** - [Task descriptions for the member (e.g., implementation of specific functions, testing, documentation).]
-  - Xavier Guimarães: **50%** - 
+  - João Castro: **50%** - Functions 1, 2, 3, 4, 7, 8, readme description of problem 8 , code comments and testing
+  - Xavier Guimarães: **50%** - Functions 5, 6, 9, readme description of problem 9, code comments and testing
 
 ## 2. Shortest Path Function (`shortestPath`)
 
@@ -32,3 +32,14 @@
 
 ## 3. Traveling Salesman Function (`travelSales`)
 
+- **Implementation Overview**:
+  - The `travelSales` function returns a solution to the TSP (Traveling Salesman Problem) of a given RoadMap.
+  - We implemented a dynammic programming approach, dividing the problem at hand into several subproblems (the shortest path from a given city to itself whilst passing through all other cities once) and storing the results using a memoization table to facilitate the computation of the solution.
+ 
+- **Justification for Data Structures**:
+  - We use the makeAdjList function to map an array of neighbouring cities and their distances to a given city, therefore we naturally made use of the Adjacency List data structure suggested to us by the project's assignment paper as it provides a quick and simple way to access that data, which came in handy when developing our algorithm.
+  - We also made use of a bit mask (which we manipulated using some Data.Bits library functions) to easily identify and monitor which cities have already been visited in each path the algorithm checks.
+  - Additionally, we opted to use a memoization array to store the several results of subproblems we obtained, further improving the complexity of our solution, as this prevents computing paths we already computed.
+
+- **Algorithm Description**:
+  - The algorithm starts by checking the base cases (empty roadMap or a single city roadMap), checking whether or not the roadMap is connected (making use of the `IsStronglyConnected` function we developed in a previous problem) and if so it calls the `actualTsp` function. In this function we create a bitmask to track the visited cities in every path we discover. We also initialize a memoization array to store the shortest tsp path of every given city and its cost. We then call the recursive `calculateTSP` helper function which computes the minimum path cost ending in a given city (and holds the visited cities in a mask), then checks if the given bitmask is complete and if not it calls `findNextCity`. This function's purpose is to find the next city of the path that's being processed. For every valid destination it updates the bit mask accordingly, retrieves the memoized result fo the given destination and bit mask and updates the minimum distance if a shorter path is found. After filling the memoization array we retrieve the optimal result. A short mention is also necessary for the `makeAdjList` function which, as the name says, maps an array of neighbours and its distance to a given city.
