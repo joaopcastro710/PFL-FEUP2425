@@ -1,5 +1,17 @@
 # Introduction
 
+
+## Notes
+
+
+
+
+
+
+
+
+
+
 ### IN-1
 
 - function application (writting a function name followed by its arguments) has higher precedence than any other operator
@@ -70,3 +82,6 @@ funcX a b c x =
 ## Lists
 
 > Sequence of elements of the same type. Denoted by '[]'
+
+
+
