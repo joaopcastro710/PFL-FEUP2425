@@ -1,23 +1,28 @@
 -- 1.1
 
+testaTriangulo :: Float -> Float -> Float -> Bool
+testaTriangulo a b c  
+                        | ((a+b>c) && (a+c>b) && (b+c>a)) = True
+                        | otherwise = False
 
 -- 1.2
-
+areaTriangulo :: Float -> Float -> Float -> Float
+areaTriangulo a b c = sqrt (s*(s-a)*(s-b)*(s-c))
+                    where s = ((a+b+c)/2)
 
 -- 1.3
 
-    
--- 1.4a
+metades :: [a] -> ([a], [a])
+metades b = (take mid b, drop mid b)
+            where mid = length b `div` 2
 
 
--- 1.4b
+-- 1.4
+newLast :: [Int] -> Int
+newLast xs = head a
+             where a = reverse xs
 
 
--- 1.7
-
-
--- 1.8 - indique o tipo mais geral para as seguintes definções 
-
-
--- 1.12 xor-> ou-exclusivo
-
+newLastnew :: [Int] -> [Int]
+newLastnew a = drop 1 b 
+                where b = reverse a
