@@ -1,63 +1,46 @@
 -- Para fazer: 2.2 , 2.3, 2.4, 2.6, 2.7, 2.12, 2.15, 2.20, 2.21, 2.24
 
---2.2
+-- 2.2
 
 intersperse :: a -> [a] -> [a]
-intersperse _ [] = [] --empty list, return empty list
-intersperse _ [x] = [x] --list with one element, return the list
-intersperse sep (x:xs) = x : sep : intersperse sep xs --list with more than one element, return the list with the separator between each element
+intersperse _ []  = []
+intersperse _ [x] = [x]
+intersperse sep (x:xs) = x : sep : intersperse sep xs
 
-
----------------------------------------------------
-
---2.3
+-- 2.3
 
 mdc :: Integer -> Integer -> Integer
-mdc a b = if (b==0) then a
-          else mdc b (mod a b)
+mdc a 0 = a 
+mdc a b = mdc b ( mod a b)
 
-------------------------------------------------------
---2.4
--- (a)
+-- 2.4 
 
 insert :: Ord a => a -> [a] -> [a]
-insert x [] = [x]
+insert x [] =[x]
 insert x (y:ys)
-    | x <= y = x: y: ys
-    | otherwise = y: insert x ys
+    | x <= y = x : y :ys
+    | otherwise = y : insert x ys
 
--- (b)
 isort :: Ord a => [a] -> [a] 
 isort [] = [] --empty
 isort (x:xs) = insert x (isort xs)
-
-
-------------------------------------------------------
-
---2.6
+ 
+-- 2.6
 
 sumOfSquares :: Integer
-sumOfSquares = sum [x^2 | x <- [1..100]]
+sumOfSquares = sum [x^2| x <- [1..100]]
 
+-- 2.7
 
--------------------------------------------------------
-
---2.7
---(a)
-
+-- a 
 aprox :: Int -> Double
-aprox n = 4 * sum [((-1)^k) / fromIntegral(2*k+1) | k <- [0..n-1]]
+aprox n = 4 * sum [((-1)^k)/fromIntegral(2k+1) | k <- [0 .. n-1]]
 
 --(b)
 aprox' :: Int -> Double
 aprox' n = sqrt (12 * sum [((-1) ^ k) / fromIntegral ((k + 1) ^ 2) | k <- [0..n-1]])
 
-
------------------------------------------------------
-
---2.12 --tem nas folhas do ppt
-
-
+-- 2.12
 divisores :: Integer -> [Integer]
 divisores n = [x | x <- [1..n], n `mod` x == 0]
 
@@ -65,7 +48,7 @@ divisores n = [x | x <- [1..n], n `mod` x == 0]
 primo :: Integer -> Bool
 primo n = divisores (fromIntegral n) == [1,n]
 
-------------------------------------------------
+-----------------------------------------------
 
 -- 2.15
 
