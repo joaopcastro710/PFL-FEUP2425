@@ -88,7 +88,7 @@ where n = length ys - 1
 ```
 
 ## Strings
-Para processar strings (lista de caracteres), usar o módulo Data.Char
+Para processar strings (lista de caracteres), usar o módulo Data.Char. Relemrar que uma string é um caso particular de uma lista! É um array de vários char [char].
 
 ```
 import Data.Char
@@ -99,4 +99,32 @@ isUpper
 isLetter
 stringToUpper str = [toUpper x | x <- str]
 stringToLower str = [toLower x | x <- str]
+```
+
+
+
+## Gonçalo Leão 
+
+### IN-17
+
+```
+fib :: (Num a, Ord a, Num p) => a -> p
+fib 0 = 0
+fib 1 = 1
+fib n 
+    | n > 0 = fib(n-2) + fib(n-1)
+    | otherwise = error "negative value"
+
+```
+
+
+### IN-18
+
+```
+ackermann :: (Num a, Ord a, Num t, Ord t) => a -> t -> t
+ ackermann 0 n = n+1
+ ackermann m 0 = ackermann (m-1) 1
+ ackermann m n
+    | (m > 0) && (n > 0) = ackermann (m-1) (ackermann m (n-1))
+    | otherwise = error "negative␣argument"
 ```

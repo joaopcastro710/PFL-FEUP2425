@@ -88,7 +88,7 @@ isStronglyConnected roadMap =
 -- dfs :: RoadMap -> [City] -> [City] -> [City]
 -- Depth-First Search to find all reachable cities from a starting point
 dfs :: RoadMap -> [City] -> [City] -> [City]
-dfs _ visited [] = visited
+dfs _ visited [] = visited  --no more cities to visit 
 dfs roadMap visited (x:xs)
     | elem x visited = dfs roadMap visited xs
     | otherwise = dfs roadMap (x:visited) ([xss | (xss, _) <- adjacent roadMap x] ++ xs)
