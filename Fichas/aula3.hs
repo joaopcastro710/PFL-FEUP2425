@@ -1,5 +1,3 @@
--- 3.1, 3.2, 3.3, 3.4, 3.7, 3.8
-
 -------------------------------------------------------
 --3.1
 -- filter para selecionar os elementos de xs que satisfazem o p
@@ -72,3 +70,7 @@ palavras s = let (w, rest) = break (== ' ') (dropWhile (== ' ') s)
 --(b)
 despalavras :: [String] -> String
 despalavras = foldr1 (\w s -> w ++ " " ++ s)
+
+
+-- -- Gonçalo Leão
+

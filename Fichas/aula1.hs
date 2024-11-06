@@ -58,3 +58,8 @@ xor :: Bool -> Bool -> Bool
 xor True  False = True              --se o primeiro argumento é True e o segundo é False
 xor False True  = True              -- se o 1º é falso e o segundo True 
 xor _     _     = False             -- com _ _ onde amos são iguais, ou seja, true true ,...
+
+
+
+-- Gonçalo Leão
+
