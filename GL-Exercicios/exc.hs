@@ -163,7 +163,7 @@ scalarProduct (x:xs) (y:ys) = (x*y) + (scalarProduct xs ys)
 -- LI-13
 
 mySplitAt :: Int -> [a] -> ([a], [a])
-mySplitAt 0 1 = ([], 1)
+mySplitAt 0 l = ([], l)
 mySplitAt _ [] = ([], [])
 mySplitAt n (x:xs)
     | n > 0 = (let (a,b) = mySplitAt (n-1) xs in (x:a,b))
@@ -181,4 +181,109 @@ myGroup (x:y:xs)
     where (g:gs) = myGroup(y:xs)
 
 
+-- LI-15 returns the list of prefixes of its argument list
 
+-- a 
+myInits :: [a] -> [[a]]
+myInits [] = [[]]
+myInits (x:xs) = [] : (addHeadToAll x (myInits xs))
+
+addHeadToAll :: a -> [[a]] -> [[a]]
+addHeadToAll _ [] = []
+addHeadToAll h (l:ls) = (h:l):(addHeadToAll h ls)
+
+
+-- LI-16
+
+-- a 
+
+myZip :: [a] -> [b] -> [(a,b)]
+myZip [] _ = []
+myZip _ [] = []
+myZip (x:xs) (y:ys) = (x,y):(myZip xs ys)
+
+-- b 
+
+myZip3 :: [a] -> [b] -> [c] -> [(a,b,c)]
+myZip3 [] _ _ = []
+myZip3 _ [] _ = []
+myZip3 _ _ [] = []
+myZip3 (x:xs) (y:ys) (z:zs) = (x, y, z):(myZip3 xs ys zs)
+
+--LI-17
+
+differentFromNext :: Eq a => [a] -> [a]
+differentFromNext [] = []
+differentFromNext [x] = [x]
+differentFromNext (x:y:xs)
+        |(x==y) = differentFromNext(y:xs)
+        | otherwise = x:(differentFromNext(y:xs))
+
+
+-- LI-18
+
+myTranspose :: [[a]] -> [[a]]
+myTranspose [] = []
+myTranspose m = hs:(myTranspose ts)
+    where (hs, ts) = splitHeadsTails m 
+
+splitHeadsTails :: [[a]] -> ([a], [[a]])
+splitHeadsTails [] = ([], [])
+splitHeadsTails (ys:xs) = 
+    case ys of  [] -> (hs, ts) -- se estiver vazio, continuamos com hs e ts
+                [z] -> (z:hs, ts)
+                (z:zs) -> (z:hs, zs:ts)
+    where (hs, ts) = splitHeadsTails xs   
+
+-- LI-20
+
+mySubsequence :: [a] -> [[a]]
+mySubsequence [] = [[]]
+mySubsequence (x:xs) = addOrNotToHead x (mySubsequence xs)
+
+addOrNotToHead :: a -> [[a]] -> [[a]]
+addOrNotToHead h [] = []
+addOrNotToHead h (l:ls) = l:(h:l):(addOrNotToHead h ls)
+
+-- the auxiliary funcition receives an element h and list l, and creates
+-- a new list where two elements are created for each non-empty suffix s of l 
+
+
+-- LI-29
+
+{-
+ a) [mod x 7 | x <- ([1..5] ++ [16..23])] -> fica [1,2,3,4,5,16,...23] e cada um a dividir por 7. A lista fica com o resto
+ b) [x ++ "␣the␣"++ y | x <- ["buy","loan"], y <- ["car","house"]]
+ c) [x | x <-[-5..5], abs(x^3)<= 20]
+ d) take 10 [-x | x <- cycle [4,7,8]]
+ e) take 10 [ 5*x*y | x<-[1..], y <-[1..]]
+ f) [(a+1,b)| (a,b)<- zip [1..3] [10..]]
+ g) [[x | (x,y)<- zip xs (tail xs), x > y] | xs <- [[3,4,3],[4,3,3],[4,2,3,1],[5,4,1],[4,3,2,1]]]
+-}
+
+-- LI-31
+
+differentFromNext2 :: Eq a => [a] -> [a]
+differentFromNext2 l = [x | (x,y) <- zip l (tail l), x /= y] --tail tira tudo menos o 1
+
+-- LI-32
+
+conseqPairs :: Eq a => [a] -> [(a, a)]
+conseqPairs l = [(a,b) | (a,b) <- zip l (tail l)]
+
+-- LI-33
+
+myZip31 :: [a] -> [b] -> [c] -> [(a,b,c)]
+myZip31 x y z = [(a,b,c) | (a,(b,c)) <- zip x (zip y z)]
+
+-- LI-35
+
+checkMod3ThenOdd :: Integral a => [a] -> Bool
+checkMod3ThenOdd l = and[mod x 2 == 1 | x <- l, mod x 3 == 0] -- se é divisor de 3 e impar
+
+-- LI-36
+
+repearNTimes :: Integral a => a -> [b] -> [b]
+repearNTimes n l = [x |x <- l, _ <- [1..n] ]
+
+-- LI-39
