@@ -61,7 +61,7 @@ Exemplo:
  | otherwise = 
 ```
 
-## 2.1 Elementary types
+### 2.1 Elementary types
 
 - 'e :: T' notation is used to detone that expression e has type T.
 - We can check the type of any expresion/function by using ':type' command.
@@ -82,7 +82,7 @@ Exemplo:
 
 
 
-## 2.2 Tuples
+### 2.2 Tuples
 
 - a tuple is a sequence of elements with a fixed size. The elements do not have to be all of the same type. Denoted by '()'. 
 - **!!!** Tuples with one element do not exist as they have the type of the actual element.
@@ -102,7 +102,7 @@ myFst :: (a,b) -> a
 myFst (x,_) = x
 ```
 
-## 2.3 Lists
+### 2.3 Lists
 
 - lists are a variable-sized sequence of elements of the same type
 - they are homogeneous: all of the elements in a list **must** have the same type
@@ -120,7 +120,7 @@ We can represent a list using:
 - !! returns the n-th element of a list    
 
 
-## 2.4 Typeclasses
+### 2.4 Typeclasses
 
 - not all functions operate over a certain group of types. Haskell defines a typeclasses which group a set of types by a common property.
 Exemplos:
@@ -135,7 +135,7 @@ Exemplos:
 -Enum: types that can be enumerated
 ```
 
-## 2.5 Type variables
+### 2.5 Type variables
 When documenting the type of a variable, instead of making the commitment
 of assigning a variable to a certain type, one could instead associate a variable to a
 typeclass. This can be achieved using the notation:
@@ -149,37 +149,135 @@ Type variables can also be used without an associated type class. For example,
  type variable: [] :: [a] .
 
 
-## 2.6 Functional types
+### 2.6 Functional types
 
 - Functions also have a type. It is good practice to declare a function's type by writting it time right above its definition.
-
 
 ---
 
 # TP2
 
-## 1.5 Recursions
+### 1.5 Recursions
+- As we know, in Haskell, there is not iteration, namely "for" and "while" cycles. To execute a fragment of code a certain number of times until a condition is met, one must use recursion, where a function’s expression contains a call to itself.
+```
+•
+ Sample exercise IN-14
+ Problem statement
+ Implement the factorial function that computes the product of an integer n
+ by all the numbers between 1 and n.
+ factorial :: (Ord p, Num p) => p-> p
+ Usage examples:
+ *Main> factorial 6
+ 720
+ Solution-- version with pattern matching and guards
+ factorial 0 = 1
+ factorial n
+ | n > 0 = n * factorial(n-1)
+ | n < 0 = error "negative␣argument"-- version with if-then-else
+ factorial’ n =
+ if n == 0 then 1
+ else if n > 0
+ then n * factorial’(n-1)
+ else error "negative␣argument"
+ In bothalternatives, the base case corresponds to when the argument is equal
+ to 0. The recursive step is executed when the argument is positive.
 
-## 3.1 Lists by range
+```
 
-## 3.2 Lists by recursion
+### 3.1 Lists by range
 
-## 3.3 Lists by comprehension
+- lists can be defined using ranges, with one or more formats. Hereare some examples:
+
+```
+ [1,2,3,4,5,6,7,8,9,10...]
+ Prelude> [1..5]
+ [1,2,3,4,5]
+ Prelude> [1,3 .. 10]
+ [1,3,5,7,9]
+ Prelude> [1,0..]
+ [1,0,-1,-2,-3,-4,-5,-6,-7,-8...]
+ Prelude> [1,3 ..]
+ [1,3,5,7,9,11,13,15,17,19...]
+ Prelude> [’a’..]
+ "abcdefghijklmnopqrstuvwxyz{|}~\DEL\128\129..."
+ Prelude> [0.1, 0.2 .. 1]
+ [0.1,0.2,0.30000000000000004,0.4,0.5,0.6,0.7000000000000001,0.8,0.9,1.0]
+```
+- Haskell is able to handle computations with infinite lists due to its *lazy evaluation* mechanic.
+
+### 3.2 Lists by recursion
+
+- same as above but now with recursion
+
+### 3.3 Lists by comprehension
+
+- usually has a structure: ```  [<pattern> | <generator 1>, <generator 2>, ..., <guard 1>, <guard 2> ...]``` where each generator has the format <patter> <- <list>. Each generator is responsible for iterating throught its list and producing a value for each element that is visited. Example:
+```
+ Prelude> [x^2 | x <- [1..10]]
+ [1,4,9,16,25,36,49,64,81,100]
+ Prelude> [x^2 | x <- [1..10], odd x]
+ [1,9,25,49,81]
+ Prelude> [x^2 | x <- [1..10], odd x, mod x 3 == 0]
+ [9,81]
+ The value on the left side of <- can be a "pattern", namely those used for lists
+ and tuples. Examples:
+ Prelude> [x | (x:_)<-[[1,2],[3,4]]]
+ [1,3]
+ Prelude> [(a,b) | (a,b) <- zip [1..3] [1..]]
+ [(1,1),(2,2),(3,3)]
+```
+
+- using multiple generators works like with nessted loops: for each value of the leftmost generator, all combinations of values of the generator to the right are produced. Example:
+
+```
+Prelude> [(x,y) | x <-[1,2], y<-"ab"]
+ [(1,’a’),(1,’b’),(2,’a’),(2,’b’)]
+ Prelude> [(x,y) | y<-"ab", x <-[1,2]]
+ [(1,’a’),(2,’a’),(1,’b’),(2,’b’)]
+ Prelude> [[x,y] | x <-"ab", y<-x:"ab"]
+ ["aa","aa","ab","bb","ba","bb"]
+```
+
+**Nota!!**: atenção! Os valores que vêm primeiramente repetidos são os leftmost
+
+Examples:
+```
+• SampleexerciseLI-26
+ Problemstatement
+ a)Withoutusingthelistitself,definethefollowinglistbycomprehension.
+ myList=[(0,5),(1,4),(2,3),(3,2),(4,1),(5,0)]
+ b)ImplementfunListthatgeneralizesthelistabovewithrespecttoapositive
+ integern.
+ Usageexamples:
+ *Main> myList
+ [(0,5),(1,4),(2,3),(3,2),(4,1),(5,0)]
+ *Main> funList 7
+ [(0,7),(1,6),(2,5),(3,4),(4,3),(5,2),(6,1),(7,0)]
+ Solution
+ a)
+ myList = [(x,5-x) | x <- [0..5]]
+ Complexexpressions,suchastuples,canbeusedforthepatternsectionof
+ alistcomprehension.
+ b)
+ funList :: Int-> [(Int,Int)]
+ funList n = [(x,n-x) | x <- [0..n]]
+```
+
 
 --- 
 
 # TP3
 
-## 4.1 Fundamentals on higher-order functions
+### 4.1 Fundamentals on higher-order functions
 
-## 4.2 Lambdas
+### 4.2 Lambdas
 
-## 4.3 Currying
+### 4.3 Currying
 
-## 4.4 Common higher-order functions
+### 4.4 Common higher-order functions
 
-## 4.5 Application and composition 
+### 4.5 Application and composition 
 
-## 4.6 Folds 
+### 4.6 Folds 
 
-## 4.7 Point-free style
+### 4.7 Point-free style

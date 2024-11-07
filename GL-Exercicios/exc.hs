@@ -93,10 +93,10 @@ distanceInf (x1,y1) (x2,y2) = max (abs(x1-x2)) (abs(y1-y2))
 {-
 --a : function f returns a pair with the third element of the input list l and the sublist of l starting at the fourth element
 
--b :
+--b :
 ff :: [a]-> (a,[a])
 ff l = (l !! 2, drop 3 l)
-{-
+
  f :: [a]-> (a,[a])
  f (_:_:x:y) = (x,y)
 
@@ -130,4 +130,55 @@ ff l = (l !! 2, drop 3 l)
  v) [1,2] == [1,2] :: Bool
  vi) zip (zip "abc""abc")"abc":: [((Char,Char),Char)]
 -}
+
+
+-- TP2
+
+-- IN-17
+
+fib :: (Num a, Ord a, Num p) => a-> p
+fib 0 = 0
+fib 1 = 1
+fib n 
+    | n > 0 = fib(n-2) + fib(n-1)
+    | otherwise = error "negative"
+
+-- IN-18
+
+ackermann :: (Num a, Ord a, Num t, Ord t) => a-> t-> t
+ackermann 0 n = n+1
+ackermann m 0 = ackermann (m-1) 1
+ackermann m n 
+    | (m>0) && (n>0) = ackermann (m-1) (ackermann m (n-1))
+    | otherwise = error "erro"
+
+
+
+-- FT-14
+scalarProduct :: Num a => [a]-> [a]-> a
+scalarProduct [] [] = 0
+scalarProduct (x:xs) (y:ys) = (x*y) + (scalarProduct xs ys)
+
+
+-- LI-13
+
+mySplitAt :: Int -> [a] -> ([a], [a])
+mySplitAt 0 1 = ([], 1)
+mySplitAt _ [] = ([], [])
+mySplitAt n (x:xs)
+    | n > 0 = (let (a,b) = mySplitAt (n-1) xs in (x:a,b))
+    | otherwise = error "error"
+
+
+-- LI-14
+
+myGroup :: Eq a => [a] -> [[a]]
+myGroup [] = []
+myGroup [x] = [[x]]
+myGroup (x:y:xs)
+    | x == y = (x:g):gs
+    | otherwise = [x]:g:gs
+    where (g:gs) = myGroup(y:xs)
+
+
 
