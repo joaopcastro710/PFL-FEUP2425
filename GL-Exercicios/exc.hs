@@ -1,3 +1,5 @@
+import Data.List-- splitAt-- Quick sort version
+
 -- IN-3
 {-
  a) (3-(-2))+1
@@ -286,4 +288,144 @@ checkMod3ThenOdd l = and[mod x 2 == 1 | x <- l, mod x 3 == 0] -- se é divisor d
 repearNTimes :: Integral a => a -> [b] -> [b]
 repearNTimes n l = [x |x <- l, _ <- [1..n] ]
 
--- LI-39
+-- HO-3
+
+applyN :: (Integral n) => (a->a) -> n -> a -> a 
+applyN _ 0 x = x
+applyN f n x 
+    | (n > 0) = f (applyN f (n-1) x)
+    | otherwise = error "error"
+
+cipher :: (Integral n) => n -> [Char] -> [Char]
+cipher _ [] = []
+cipher n (x:xs) = (applyN nextChar n x):(cipher n xs)
+
+nextChar :: Char -> Char
+nextChar 'z' = 'a'
+nextChar c = succ c
+
+
+-- HO-7
+
+sortByCond :: Ord a => [a]-> (a-> a-> Bool)-> [a]
+sortByCond [] _ = []
+sortByCond (x:xs) cmp =
+    (sortByCond lower cmp) ++ [x] ++ (sortByCond upper cmp)
+    where (lower, upper) = myPartition x xs cmp
+
+myPartition :: Ord a => a-> [a]-> (a-> a-> Bool)-> ([a], [a])
+myPartition _ [] _ = ([],[])
+myPartition v (x:xs) cmp
+    | cmp x v = (x:a,b)
+    | otherwise = (a,x:b)
+    where (a,b) = myPartition v xs cmp
+
+
+-- HO-10
+
+myUncurry :: (a -> b -> c) -> (a,b) -> c
+myUncurry f (a,b) = f a b 
+
+myUncurry' :: (a -> b -> c) -> (a, b) -> c
+myUncurry' f = \(a,b) -> f a b      --with binary lambda function
+
+myUncurry'' :: (a -> b -> c) -> (a, b) -> c
+myUncurry'' = \f (a,b) -> f a b     -- ternary lambda function
+
+
+-- HO-14
+
+orderedTriples :: Ord a => [(a,a,a)] -> [(a,a,a)]
+orderedTriples = filter (\(a,b,c) -> (a <= b) && (b <= c))
+
+-- HO-15
+
+myMap :: (a->b) -> [a] -> [b]   --recebe uma função e depois uma lista e retorna uma lista
+myMap f l = [f x | x <- l]
+
+-- HO-16
+
+myFilter :: (a -> Bool) -> [a] -> [a]
+myFilter f l = [x | x <- l, f x]
+
+-- HO-17
+
+myTakeWhile :: (a-> Bool) -> [a] -> [a]
+myTakeWhile f [] = []
+myTakeWhile f (x:xs)
+    | f x = x : (myTakeWhile f xs)
+    | otherwise = []
+
+
+myDropWhile :: (a -> Bool) -> [a] -> [a]
+myDropWhile f [] = []
+myDropWhile f (x:xs)
+    | f x = myDropWhile f xs
+    | otherwise = x:xs
+
+
+-- HO-18
+{-
+ Consider themyAll function,which, similarly toPrelude’s any, givena
+ predicatepandalistl,checksifalltheelementsoflsatisfyp.
+ a)ImplementmyAllusingrecursion(andwithoutusinguserhigher-order
+ functions).
+ b)ImplementmyAllusingalistcomprehensionandthe‘and’function,and
+ withoutusingrecursion.
+ c)ImplementmyAllusingmapandwithoutusingrecursionorlistcompre
+hensions.
+ d) ImplementmyAll usinganyandwithout usingmap, recursionor list
+ comprehensions.
+e)ImplementmyAllusingotherhigher-orderfunctions(otherthanmap,any
+ andall)andwithoutusingrecursionorlistcomprehensions.
+-}
+{-
+ --a)
+ myAll :: (a-> Bool)-> [a]-> Bool
+ myAll _ [] = True
+ myAll p (x:xs) = (p x) && myAll p xs
+ --b)
+ myAll’ :: (a-> Bool)-> [a]-> Bool
+ myAll’ p l = and [p x | x <- l]
+ --c)-- Version with explicit list argument
+ myAll’’ :: (a-> Bool)-> [a]-> Bool
+ myAll’’ p l = and (map p l)-- Version without explicit list argument and composition
+ myAll’’’ :: (a-> Bool)-> [a]-> Bool
+ myAll’’’ p = and . (map p)
+ --d)
+ myAll’’’’ :: (a-> Bool)-> [a]-> Bool
+ myAll’’’’ p l = not (any (not . p) l)
+ --e)-- Version with filter
+ myAll’’’’’ :: (a-> Bool)-> [a]-> Bool
+ myAll’’’’’ p l = null (filter (not . p) l)-- Version with takeWhile
+ myAll’’’’’’ :: (a-> Bool)-> [a]-> Bool
+ myAll’’’’’’ p l = length l == length (takeWhile p l)
+-}
+
+
+-- HO-32
+-- using fold
+myMap2 :: (a-> b) -> [a] -> [b]
+myMap2  f l = foldr(\x acc -> (f x):acc) [] l
+
+-- HO-33
+
+largePairs :: (Ord a, Num a) => a -> [(a,a)] -> [(a,a)]
+largePairs max ts = foldr(\(x,y) acc -> if (x+y > max) then (x,y):acc else acc) [] ts
+
+
+-- HO-35
+
+separateSingleDigits :: (Integral a) => [a] -> ([a], [a])
+separateSingleDigits l = foldr(\x (ys, ns) -> if (x >= 0 && x <= 9) then (x:ys, ns) else (ys,x:ns)) ([], []) l
+
+-- HO-37
+
+myFoldr :: (a -> b -> b) -> b -> b -> [a] -> b
+myFoldr _ acc [] = acc
+myFoldr f acc (x:xs) = f x (myFoldr f acc xs)
+
+myFoldl :: (b-> a-> b)-> b-> [a]-> b
+myFoldl _ acc [] = acc
+myFoldl f acc (x:xs) = myFoldl f (f acc x) xs
+

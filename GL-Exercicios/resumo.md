@@ -270,14 +270,124 @@ Examples:
 
 ### 4.1 Fundamentals on higher-order functions
 
+- When declaring a functional type, the '->' symbol is right-associative. Thus, indicating that a function f has the type a -> b -> c is equivalent to a -> (b -> c). As a result, parentheses must be used to indicate that an argument is a function. For example, if a function f has two arguments, the first of which being a function, and outputs another function, then its type declaration should be: ' f :: (a->b) -> c -> (d -> e) '
+
 ### 4.2 Lambdas
+
+- lambdas (or anonymous functions) are used to define functions *on-the-fly*, that means: rather than writing a definition for a function that will be used once, the function can be written in an expression.
+Exemplo:
+```
+ Prelude> (\x-> x + 1) 2
+ 3
+ Prelude> (\(x:xs)-> x) [1..10]
+ 1
+```
 
 ### 4.3 Currying
 
+- Functions with multiple arguments can be considered as a series of functions which receive an argument and return a function which receives the second argument, and so on. This is known as currying.
+
+- All functions with multiple arguments are thus considered to be curried. Since '->' is right-associative, we 'f::a->b->c' is equivelent to 'f::a->(b->c)', that is, a binary function returns an unary function.
+
+- Arguments are passed to functions, one-by-one, by putting spaces between the
+ function’s name and the name of each argument. This is known as application. If
+ fewer arguments are passed to a function than what the function can accept, the
+ function is known to be partially applied: rather than returning a value of its output
+ type, it returns a function that receives the remainder of its inputs and only then
+ returns its output.
+
+- Example using 'map':
+
+```
+ (First alternative: definiting a function explicitly.)
+ Prelude> let f l = drop 2 l
+ Prelude> map f [[1,2,3],[4,5,6]]
+ [[3],[6]]
+ (Second alternative: using a lambda.)
+ Prelude> map (\l-> drop 2 l) [[1,2,3],[4,5,6]]
+ [[3],[6]]
+ (Third alternative: using partial application.)
+ Prelude> map (drop 2) [[1,2,3],[4,5,6]]
+ [[3],[6]]
+```
+
 ### 4.4 Common higher-order functions
+
+- map: applies a function to each element of a list ``` map succ [1,2,3]->[2,3,4] ```
+
+- filter: returns a sublist with the elements that satisfy a predicate: ```  filter odd [1..5]->[1,3,5] ```
+
+- any: checks if at least one element of a list satisfy a predicate (T or F)
+
+- all: checks if all the elements of a list satisfy a predicate
+
+- takeWhile: returns the longest prefix of a list that satisfies a predicate
+
+- dropWhile: returns the remainder of a list after calling takeWhile
+
+- iterate: returns an infinite list where the i-th element is the application of a function f on a value x i times (starting at 0).
+
+- zipWith: zips two list, then combines each pair using a binary function
+
+- flip: swaps the order of the arguments in a binary functions
+
 
 ### 4.5 Application and composition 
 
-### 4.6 Folds 
+- Function application consists in passing an argument to a function. By putting spaces between a function's name and arguments, the latter are passed one-by-one, from left-to-right. So by default it is ```f x y = (f x) y ```.
 
-### 4.7 Point-free style
+-  Function composition g . f is the operation of building a new function by
+ passing the output of a function f as input to a function g: (g ◦ f)(x) = g(f(x)).
+
+ Example:
+ ```
+  a) Implementap,whichworkssimilarlytoPrelude’sapplicationoperator
+ ($).
+ b)Implementcm,whichworkssimilarlytoPrelude’scompositionoperator
+ (.).
+
+  a)-- Alternative with infix definition
+ ap :: (a-> b)-> a-> b
+ f ‘ap‘ x = f x-- Alternative with prefix definition
+ ap’ :: (a-> b)-> a-> b
+ ap’ f x = f x
+ Therightpartof $ isappliedtoafunctiononits left side, thus thefirst
+ argumentofapmustbeafunction.
+ Thefunctioncanbedefinedusinginfixnotation,butmustalwaysbeused
+ usingthisnotation(evenifdefinedinprefixnotation).
+ Thedefinitioncorrectlyemulatesthe $ sinceaprefixfunctionhasahigher
+ precedence thananinfixoperation, asexplainedinthesolutionofexercise
+ IN-1,inChapter1.
+ b)-- Alternative with parentheses
+ cm :: (b-> c)-> (a-> b)-> (a-> c)
+ cm f g x = f(g x)-- Alternative with $
+ cm’ :: (b-> c)-> (a-> b)-> (a-> c)
+ cm’ f g x = f $ g x-- Alternative with a lambda
+ cm’’ :: (b-> c)-> (a-> b)-> (a-> c)
+ cm’’ f g = \x-> f(g x)
+ ```
+
+### 4.6 Folds 
+- Folds are a family of higher order functions that process a data structure in a given order and return a value. Usually have two ingredients: a combining function and an accumulator.
+- The two main functions are 'foldr' and 'foldl'.
+- foldr performs right folds: it recursively combines the result of the list’s head and accumulator with the result of combining with the tail.
+- foldl performs left folds: it recursively combines the result of combining all but the list’s last element and accumulator with the last element.
+
+Example of how they differ:
+
+```
+foldr (-) 0 [1, 2, 3, 4, 5] = (1- (2- (3- (4- (5- 0))))) = 3
+foldl (-) 0 [1, 2, 3, 4, 5] = (((((0- 1)- 2)- 3)- 4)- 5) = -15
+```
+
+---
+
+# TP4
+
+### 5.1
+
+### 5.2
+
+### 5.3
+
+### 5.4
