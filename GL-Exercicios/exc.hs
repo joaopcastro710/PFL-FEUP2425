@@ -429,3 +429,30 @@ myFoldl :: (b-> a-> b)-> b-> [a]-> b
 myFoldl _ acc [] = acc
 myFoldl f acc (x:xs) = myFoldl f (f acc x) xs
 
+-- UT3
+
+-- a) type Relation a = [Pair a]
+
+-- b)
+
+isReflexive :: (Eq a) => Relation a -> Bool
+isReflexive r = isReflexiveAux r r 
+
+isReflexiveAux :: (Eq a) => [Pair a] -> Relation a -> Bool
+isReflexiveAux [] _ = True
+isReflexiveAux ((x,y):xs) r
+    | (y,x) 'elem' r = isReflexiveAux xs r
+    | otherwise = False
+
+-- c)
+{-
+ isTransitive :: (Eq a) => Relation a-> Bool
+ isTransitive r = isTransitiveAux [(x,y) | x <- r, y <- r] r
+ isTransitiveAux :: (Eq a) => [Pair (Pair a)]-> Relation a-> Bool
+ isTransitiveAux [] _ = True
+ isTransitiveAux (((x,y),(w,z)):xs) r
+    | y == w && not((x,z) ‘elem‘ r) = False
+    | otherwise = isTransitiveAux xs r
+-}
+
+-- UT4

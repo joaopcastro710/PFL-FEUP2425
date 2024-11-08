@@ -384,10 +384,62 @@ foldl (-) 0 [1, 2, 3, 4, 5] = (((((0- 1)- 2)- 3)- 4)- 5) = -15
 
 # TP4
 
-### 5.1
+### 5.1 Creating type synonyms with the 'type' word
 
-### 5.2
+-type keyword can be used to define 'type synonyms'. These synonyms have the advantage of increasing the readibility. The general syntax is: ``` type <synonym name> <type variable 1> <type variable 2> ... = <expression> ```
 
-### 5.3
+- just like a type's name, the synonym's name must start with an upper letter.
 
-### 5.4
+Examples:
+```
+ type String = [Char]
+ type Pair a = (a,a)
+ type HashMap k v = [(k,v)]
+```
+
+### 5.2 Creating algebraic data types with the 'data' keyword
+
+- if one wants to define a structure for a person with two strings: one with their name and another with their email, we can do:
+
+```
+type Person = (String, String)
+```
+
+### 5.3 Derived Types
+
+- Consider the 'Shape' type defined in the previous sections. It is literally a shape. If we try to print a shape on the console or compare two shapes, an error is issued. To allow a shape to be printed and compared, one must define that it derives the typeclass Eq, sing the 'deriving' keyword. If a type T derives the typeclass TC, then T is an instance of TC.
+
+### 5.4 Named Fields
+
+- when defining a new type using 'data', the fields of a value can be given names using the record syntax.
+-  If a class with named fields is an instance of Show, then they are
+ printed in a different manner. Also, value of a type with named fields can be defined
+ in an alternative way. Examples:
+ ```
+ Prelude> data Date = Date { day :: Int, month :: Int, year :: Int} deriving (
+ → Show)
+ Prelude> Date 18 6 2006
+ Date {day = 18, month = 6, year = 2006}
+ Prelude> Date {day = 18, year = 2006, month = 6}
+ Date {day = 18, month = 6, year = 2006}
+
+ ```
+
+### 5.5 Modules
+
+- a module is a set of related definitions, including those of functions, types and typeclasses. Using modules has the advantage of allowing for code to be reused in other projects that requiere the same functions, thus avoiding code duplication. Notable modules are Data.List,... to use them we just have to use 'import <module name>' 
+
+### 5.7 Binary Search Trees
+
+ Abinary search tree (BST) is a tree where all of the nodes have exactly two children
+ and contain an element/key belonging to a type for which the < operator is defined
+ (i.e. an object belonging to a type that is an instance of Ord). The two children of a
+ node n, which are also BSTs, are known as the left and right children of n. Leaves
+ do not contain anything.
+ In this case study, it will be assumed that all the keys in a BST are unique.
+ BSTs store their keys in an orderly fashion:
+ • Theleft subtree of a node n only contains keys that are lesser than the key of n.
+ • Theright subtree of a node n only contains keys that are greater than the key of n
+
+
+### 6.1 Standart I/O
